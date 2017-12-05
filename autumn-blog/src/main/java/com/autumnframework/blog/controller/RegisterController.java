@@ -23,13 +23,17 @@ public class RegisterController {
     @RequestMapping(value = "userRegister/")
     @ResponseBody
     public ResponseMsg doRegister(User user){
+        //  密码加密
         user.setPassword(MD5Util.getMD5(user.getPassword()));
+        //  初次注册，设置未激活状态
+        user.setStatus(2);
+
         return userService.registerUser(user);
     }
     @RequestMapping(value = "auth")
     @ResponseBody
-    public ResponseMsg registerAuth(@RequestParam("user_login_name")String name){
+    public ResponseMsg registerAuth(@RequestParam("user_login_name")String name, @RequestParam("activation_code")String activation_code, @RequestParam("time")String time){
 
-        return userService.updateUserStateByLoginName(1, name);
+        return userService.registerAuth(name, activation_code, time);
     }
 }

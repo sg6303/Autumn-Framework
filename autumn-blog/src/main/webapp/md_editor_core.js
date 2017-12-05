@@ -20,8 +20,8 @@ $(function() {
     var wantSaveTime = null;
 
 
-    //custom
-    var toolbarIcons = ["saveIcon", "|", "undo", "redo", "|", "bold", "hr", "|", "preview", "watch", "|", "fullscreen", "info", "||", "share", "optionsIcon", "outlineIcon", "counterIcon", "|", "login", "register", "logout"];
+    //custom "info",
+    var toolbarIcons = ["saveIcon", "|", "undo", "redo", "|", "bold", "hr", "|", "preview", "watch", "|", "fullscreen",  "||", "share", "optionsIcon", "outlineIcon", "counterIcon", "|", "login", "logout"];
 
     try {
         wizVerisonGreaterThan45 = objApp.Window.CurrentDocumentBrowserObject != null;
@@ -33,9 +33,9 @@ $(function() {
     ////////////////////////////////////////////////
 
     var pa = {
-        id : "11111"
+        id : "1D524E25C80F2CABD8621053928F77B8"
     }
-    Fv.ajax.get("blog/getBlogById", pa, function (data) {
+    Fv.ajax.get("blog/getBlogById/"+pa.id, {}, function (data) {
         wizEditor = editormd("test-editormd", {
             theme           : optionSettings.EditToolbarTheme,        // 工具栏区域主题样式，见editormd.themes定义，夜间模式dark
             editorTheme     : optionSettings.EditEditorTheme,         // 编辑器区域主题样式，见editormd.editorThemes定义，夜间模式pastel-on-dark
@@ -57,7 +57,7 @@ $(function() {
                 "F9", "F10", "F11"               // 禁用切换全屏状态，因为为知已经支持
             ],
             keymapMode      : optionSettings.KeymapMode,              // 键盘映射模式
-            markdown        : data.content,
+            markdown        : data.content_md,
             saveHTMLToTextarea : true,
             toolbarIcons : function() {
                 // return getEditToolbarButton(optionSettings.EditToolbarButton);
@@ -73,9 +73,9 @@ $(function() {
                 share : "fa-share"
             },
             toolbarCustomIcons : {  // 用于增加自定义工具栏的功能，可以直接插入HTML标签，不使用默认的元素创建图标
-                login : "<a href=\"javascript:;\" class=\"layui-btn  layui-btn-mini\" style='background-color: inherit' onclick='Fv.login();'>登录</a>",
+                login : "<a href=\"javascript:;\" style='background-color: inherit' id='username' '></a>",
                 register : "<a href=\"javascript:;\" class=\"layui-btn  layui-btn-mini\" style='background-color: inherit' onclick='Fv.register()'>注册</a>",
-                logout : "<a href=\"javascript:;\" class=\"layui-btn  layui-btn-mini\" style='background-color: inherit' onclick='Fv.logout()'>注销</a>"
+                logout : "<a href=\"javascript:;\" class=\"layui-btn  layui-btn-xs\" style='background-color: inherit' onclick='Fv.logout()'>注销</a>"
             },
             toolbarHandlers : {
                 saveIcon : function() {
@@ -98,23 +98,11 @@ $(function() {
                     this.executePlugin("counterDialog", "counter-dialog/counter-dialog");
                 },
                 share : function () {
-                    var content = wizEditor.getHTML();
-                    alert(content);
-//                                Fv.config.layer.open({
-//                                    type: 1
-//                                    ,title: '添加菜单'
-//                                    ,offset: 'auto' //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
-//                                    ,id: 'addMenuLayer'+1 //防止重复弹出
-//                                    ,content: content
-//                                    ,shade: 0 //不显示遮罩
-//                                    ,skin: 'layui-layer-molv'
-////                                    ,area: ["1000px"]
-//                                });
-//                                Fv.config.layer.open({
-//                                    type: 0
-//                                    ,title: "分享链接"
-//                                    ,content: "hello"
-//                                })
+                    Fv.config.blog = {
+                        content_md : wizEditor.getMarkdown()
+                        ,content_html : wizEditor.getHTML()
+                    }
+                    Fv.share();
                 }
             },
             lang : {
@@ -126,12 +114,15 @@ $(function() {
                     optionsIcon : "选项",
                     outlineIcon : "内容目录",
                     counterIcon : "文章信息",
+                    share : "分享",
                     login : "登录",
                     register : "注册",
                     logout : "登出"
                 }
             },
             onload : function() {
+
+                $("#username").append(Fv.config.user.user_login_name);
                 var keyMap = {
                     "Ctrl-F9": function(cm) {
                         $.proxy(wizEditor.toolbarHandlers["watch"], wizEditor)();
